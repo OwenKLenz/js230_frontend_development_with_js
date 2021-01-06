@@ -1,1 +1,1 @@
-Exercises for [Launch School](https://launchschool.com)'s course on 
+Small Projects for [Launch School](https://launchschool.com)'s course on Front End Development with JavaScript
