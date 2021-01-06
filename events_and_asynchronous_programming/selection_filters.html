@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Selection Filters</title>
+    <meta charset="utf-8"/>
+    <script>
+      function hideOptions(visibleOptions, optionElements) {
+        optionElements.forEach(option => {
+          if (!visibleOptions.includes(option.value)) {
+            option.style.display = 'none';
+          }
+        });
+      }
+
+      function resetOptions(optionArray) {
+        optionArray.forEach(child => {
+          child.style.display = 'block';
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        let classifications = document.getElementById('animal-classifications');
+        let classificationChildren = [...classifications.children];
+
+        let animals = document.getElementById('animals');
+        let animalChildren = [...animals.children];
+
+        let classificationFilter = {
+          Vertebrate: ['Bear', 'Turtle', 'Whale', 'Salmon', 'Ostrich'],
+          'Warm-blooded': ['Bear', 'Whale', 'Ostrich'],
+          'Cold-blooded': ['Salmon', 'Turtle'],
+          Mammal: ['Bear', 'Whale'],
+          Bird: ['Ostrich'],
+        }
+
+        let animalFilter = {
+          Bear: ['Vertebrate', 'Warm-blooded', 'Mammal'],
+          Turtle: ['Vertebrate', 'Cold-blooded'],
+          Whale: ['Vertebrate', 'Warm-blooded', 'Mammal'],
+          Salmon: ['Vertebrate', 'Cold-blooded'],
+          Ostrich: ['Vertebrate', 'Warm-blooded', 'Bird'],
+        }
+
+        classifications.addEventListener('click', event => {
+          if (event.target.value !== "Classifications") {
+            let classificationArray = classificationFilter[event.target.value];
+
+            hideOptions(classificationArray, animalChildren);
+          }
+        });
+
+        animals.addEventListener('click', event => {
+          if (event.target.value !== "Animals") {
+            let animalArray = animalFilter[event.target.value];
+
+            hideOptions(animalArray, classificationChildren);
+          }
+        });
+
+        document.getElementById('clear').addEventListener('click', event => {
+          event.preventDefault();
+          
+          resetOptions(classificationChildren);
+          resetOptions(animalChildren);
+
+          classifications.selectedIndex = 0;
+          animals.selectedIndex = 0;
+        });
+      });
+      
+    </script>
+  </head>
+  <body>
+    <form id="selection-filters" method="post" action="#">
+      <select id="animal-classifications">
+        <option value="Classifications" selected>Classifications</option>
+        <option value="Vertebrate">Vertebrate</option>
+        <option value="Warm-blooded">Warm-blooded</option>
+        <option value="Cold-blooded">Cold-blooded</option>
+        <option value="Mammal">Mammal</option>
+        <option value="Bird">Bird</option>
+      </select>
+      <select id="animals">
+        <option value="Animals" selected>Animals</option>
+        <option value="Bear">Bear</option>
+        <option value="Turtle">Turtle</option>
+        <option value="Whale">Whale</option>
+        <option value="Salmon">Salmon</option>
+        <option value="Ostrich">Ostrich</option>    
+      </select>
+      <button id="clear">Clear</button>  
+    </form>
+  </body>
+</html>

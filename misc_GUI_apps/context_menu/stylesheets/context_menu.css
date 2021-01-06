@@ -1,0 +1,31 @@
+html, body {
+  margin: 0;
+}
+
+.contextMenu {
+  list-style: none;
+  margin: 0;
+  border: 2px solid black;
+  background: silver;
+  width: 120px;
+  text-align: center;
+  padding: 0;
+  position: absolute;
+}
+
+.contextMenu li {
+  border: 1px solid black;
+  margin-left: 0;
+}
+
+.contextMenu li:hover {
+  background-color: grey;
+  color: white;
+  cursor: pointer;
+}
+
+.thing {
+  width: 200px;
+  height: 200px;
+  background: green;
+}

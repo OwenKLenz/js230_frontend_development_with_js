@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Adding Schedules</title>
+    <meta charset="utf-8"/>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        let form = document.querySelector('form');
+        let fieldSet = document.querySelector('fieldset');
+        let staffSelector = document.querySelector('select');
+        let submitButton = document.getElementById('form-submit-button');
+        let createNewFormButton = document.querySelector('button');
+        let formCount = 1;
+
+        createStaffList(staffSelector);
+        addSelectorEventListener(staffSelector);
+        addFormSubmitEventListener(form);
+
+        function addFormSubmitEventListener(form) {
+          form.addEventListener('submit', event => {
+            event.preventDefault();
+            let schedules = {"schedules": []};
+
+            [...form.children].forEach(formChild => {
+
+              if (formChild.tagName === 'FIELDSET') {
+                let scheduleData = {};
+                [...formChild.children].forEach(scheduleField => {
+                  if (scheduleField.tagName === 'SELECT') {
+                    let value = scheduleField.value
+                    if (String(Number(value)) === value) {
+                      value = Number(value);
+                    }
+
+                    scheduleData[scheduleField.classList] = value;
+                  } 
+                });
+
+                schedules.schedules.push(scheduleData);
+              }
+            });
+
+            let request = new XMLHttpRequest();
+            request.open('POST', 'http://localhost:3000/api/schedules');
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.addEventListener('load', () => {
+              if (request.status === 201) {
+                alert('Tadah!');
+              }
+            });
+
+            console.log(schedules);
+            request.send(schedules);
+          });
+        }
+
+        function createStaffList(staffSelector) {
+          let staffListRequest = new XMLHttpRequest();
+          staffListRequest.open('GET', 'http://localhost:3000/api/staff_members');
+          staffListRequest.responseType = 'json';
+
+          staffListRequest.addEventListener('load', () => {
+            staffListRequest.response.forEach(staffMember => {
+              let newOption = document.createElement('option');
+              newOption.value = staffMember.id;
+              newOption.innerText = staffMember.name;
+              staffSelector.appendChild(newOption);
+            });
+          });
+
+          staffListRequest.send();
+        }
+
+
+        createNewFormButton.addEventListener('click', () => {
+          addScheduleFieldset();
+        });
+
+        function addSelectorEventListener(staffList) {
+          staffList.addEventListener('click', event => {
+            let timeSelect = staffList.parentNode.querySelector('select.time');
+            let dateSelect = staffList.parentNode.querySelector('select.date');
+            timeSelect.innerHTML = '';
+            dateSelect.innerHTML = '';
+            let selectedStaffId = staffList.selectedOptions[0].value;
+
+            let scheduleDataRequest = new XMLHttpRequest();
+            scheduleDataRequest.open('GET', 'http://localhost:3000/api/schedules/' + String(selectedStaffId));
+            scheduleDataRequest.responseType = 'json';
+            scheduleDataRequest.setRequestHeader('Content-Type', 'application/json');
+
+            scheduleDataRequest.addEventListener('load', () => {
+              let schedules = scheduleDataRequest.response;
+              addOptions(timeSelect, schedules, 'time');
+              addOptions(dateSelect, schedules, 'date');
+            });
+
+            scheduleDataRequest.send();
+          });
+        }
+
+        function addOptions(selectElement, schedules, scheduleField) {
+          schedules.forEach(schedule => {
+            if (!schedule.studentEmail) {
+              let newOption = document.createElement('option');
+              newOption.innerText = schedule[scheduleField];
+              newOption.value = schedule[scheduleField];
+              selectElement.appendChild(newOption);
+            }
+          });
+        }
+
+        function addScheduleFieldset() {
+          let newFieldset = document.querySelector('fieldset').cloneNode(true); 
+          newFieldset.querySelector('p').innerText = `Schedule ${++formCount}`;
+          form.insertBefore(newFieldset, submitButton);
+          addSelectorEventListener(newFieldset.querySelector('select'));
+        } 
+      });
+    </script>
+  </head>
+  <body>
+    <button type="submit">Add more schedules</button>
+    <form action="http://localhost:3000/api/schedules" method="POST" >
+      <fieldset>
+        <p>Schedule 1</p>
+        <select class="staff_id"></select>
+        <select class="date"></select>
+        <select class="time"></select>
+      </fieldset>
+      <button type="submit" id="form-submit-button">Submit</button>
+    </form>
+  </body>
+</html>

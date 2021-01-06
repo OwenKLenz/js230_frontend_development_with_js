@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Adding Schedules</title>
+    <meta charset="utf-8" />
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        let form = document.querySelector("form");
+        let submitButton = document.querySelector("#form-submit-button");
+        let originalFieldset = document.querySelector("fieldset");
+        let addScheduleButton = document.querySelector("button");
+        let fieldsetCount = 1;
+
+        addStaffNamesToSelectElement(originalFieldset.querySelector('select'));
+
+        addScheduleButton.addEventListener('click', event => {
+          addNewScheduleField();
+        });
+
+        form.addEventListener('submit', event => {
+          event.preventDefault();
+
+          if (anyEmptyFields(form)) {
+            alert("Please fill in all dates and times");
+          } else {
+            let formData = constructFormDataObject(form);
+            console.log(formData);
+            let newStaffPostRequest = new XMLHttpRequest();
+            newStaffPostRequest.open('POST', 'http://localhost:3000/api/schedules');
+            newStaffPostRequest.setRequestHeader('Content-Type', 'application/json');
+            newStaffPostRequest.addEventListener('load', event => {
+              if (event.target.status === 201) {
+                alert('Schedule(s) added!');
+              } else {
+                alert(event.target.responseText);
+              }
+            });
+
+            newStaffPostRequest.send(JSON.stringify(formData));
+          }
+        });
+
+        function constructFormDataObject(form) {
+          let formData = {schedules: []};
+
+          [...form.children].forEach(fieldset => {
+            if (fieldset.tagName === "FIELDSET") {
+              let scheduleData = {};
+              scheduleData['staff_id'] = Number(fieldset.querySelector('select').value);
+              scheduleData['date'] = fieldset.querySelector('.date').value;
+              scheduleData['time'] = fieldset.querySelector('.time').value;
+              formData.schedules.push(scheduleData);
+            }
+          });
+
+          return formData;
+        }
+
+        function anyEmptyFields(form) {
+          return [...form.children].some(formChild => {
+            if (formChild.tagName !== 'BUTTON' && (formChild.querySelector('.date').value === "" ||
+                formChild.querySelector('.time').value === "")) {
+              return true;
+            } 
+
+            return false;
+          });
+        }
+
+        function addNewScheduleField() {
+          let newSchedule = originalFieldset.cloneNode(true);
+          newSchedule.querySelector('p').innerText = `Schedule ${++fieldsetCount}`;
+          addStaffNamesToSelectElement(newSchedule.querySelector('select'));
+          submitButton.insertAdjacentElement('beforebegin', newSchedule);
+        }
+
+        function addStaffNamesToSelectElement(selector) {
+          let request =  new XMLHttpRequest();
+          request.open("GET", "http://localhost:3000/api/staff_members");
+          request.setRequestHeader('Content-Type', 'application/json');
+          request.responseType = 'json';
+          request.addEventListener('load', event => {
+            request.response.forEach(staffMember => {
+              let newOption = document.createElement('option');
+              newOption.innerText = staffMember.name;
+              newOption.value = staffMember.id;
+              selector.appendChild(newOption);
+            });
+          });
+
+          request.send();
+        }
+
+        
+      });
+    </script>
+  </head>
+  <body>
+    <button type="submit">Add more schedules</button>
+    <form action="http://localhost:3000/api/schedules" method="POST" >
+      <fieldset>
+        <p>Schedule 1</p>
+        <select class="staff_id"></select>
+        <input class="date" placeholder="mm-dd-yy" type="text" />
+        <input class="time" placeholder="hh:mm" type="text" />
+      </fieldset>
+      <button type="submit" id="form-submit-button">Submit</button>
+    </form>
+  </body>
+</html>

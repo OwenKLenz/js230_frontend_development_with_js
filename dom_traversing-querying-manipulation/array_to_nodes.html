@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Array To Nodes</title>
+    <meta charset="utf-8"/>
+  </head>
+</html>
+  <script>
+// Walk through through the nodes array all the way to the bottom (until an empty array is reached)
+// Track the currentParent element
+// createElement with currentParent name and place inside document
+// Iterate over each child of the parent (each element in the subarray alongside the current element)
+  //  For each child, createElement, insertAdjacentElement at beforeend
+  // Child becomes currentParent
+// Repeat until empty array element is reached
+// Probably recquires recursion this way
+// Alternatively, make a second pass after collecting 
+
+    function arrayToNodes([_, childElementArray], parentNode = document.body) {
+      childElementArray.forEach(childArray => {
+        let childElement = document.createElement(childArray[0]);
+
+        parentNode.appendChild(childElement);
+        arrayToNodes(childArray, childElement);
+      });
+    }
+
+    // Nested array of nodes
+    let nodes = ["BODY",
+                    [ 
+                      ["HEADER",[]],
+                      ["MAIN",[["P", []]]],
+                      ["FOOTER",[]]
+                    ]
+                  ];
+
+    console.log(arrayToNodes(nodes));
+
+    // Nested array of nodes
+    <!-- nodes = ["BODY",[["DIV",[["DIV",[]],["DIV",[["DIV",[]]]]]],["DIV",[]],["DIV",[["DIV",[]],["DIV",[]],["DIV",[]]]]]]; -->
+
+    // OR
+    //
+    // ["BODY", [
+    //   ["DIV", [
+    //     ["DIV", []],
+    //     ["DIV", [
+    //       ["DIV",[]]]]]],
+    //   ["DIV", []],
+    //   ["DIV", [
+    //     ["DIV", []],
+    //     ["DIV", []],
+    //     ["DIV", []]]]]]
+
+    <!-- arrayToNodes(nodes); -->
+  </script>

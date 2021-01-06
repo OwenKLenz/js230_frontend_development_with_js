@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Reverse Engineer</title>
+    <meta charset="utf-8"/>
+  <script>
+    document.querySelector('html').addEventListener('click', (target) => {
+      let container = document.querySelector('#container');
+      if (target !== container && !container.contains(target))) {
+        document.querySelector('#container').style = 'display: none';
+      }
+    });
+
+    document.querySelector('#container').addEventListener('click', event => {
+    });
+  </script>
+  </head>
+  <body>
+    <div id='container'></div>  
+  </body>
+</html>

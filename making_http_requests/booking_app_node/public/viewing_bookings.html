@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Viewing Bookings</title>
+    <meta charset="utf-8"/>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let list = document.querySelector('ul');
+
+      let datesRequest = new XMLHttpRequest();
+      datesRequest.open('GET', 'http://localhost:3000/api/bookings');
+      datesRequest.responseType = 'json';
+
+      datesRequest.addEventListener('load', event => {
+        datesRequest.response.forEach(date => {
+          let newDateLI = document.createElement('li');
+          newDateLI.innerText = date;
+          newDateLI.addEventListener('click', event => {
+            let subList = newDateLI.firstElementChild;
+
+            if (subList.style.display === 'none') {
+              subList.style.display = 'block';
+            } else {
+              subList.style.display = 'none';
+            }
+          });
+
+          list.appendChild(newDateLI);
+        });
+
+        [...list.children].forEach(li => {
+          let date = li.innerText;
+
+          let subList = document.createElement('ul');
+          subList.style.display = 'none';
+          li.appendChild(subList);
+
+          let schedulesRequest = new XMLHttpRequest();
+          schedulesRequest.open('GET', 'http://localhost:3000/api/bookings/' + date);
+          schedulesRequest.responseType = 'json';
+
+          schedulesRequest.addEventListener('load', () => {
+            schedulesRequest.response.forEach(schedule => {
+              let scheduleLI = document.createElement('li');
+              scheduleLI.innerText = schedule.join(' | ');
+              subList.appendChild(scheduleLI);
+            });
+          });
+          
+          schedulesRequest.send();
+        });
+      });
+
+      datesRequest.send();
+    });
+  </script>
+  </head>
+  <body>
+    <h1>Bookings</h1>
+    <ul id="booked_dates">
+    </ul>
+  </body>
+</html>

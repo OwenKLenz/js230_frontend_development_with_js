@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Getting Schedules</title>
+    <meta charset="utf-8"/>
+    <script>
+      // Further Exploration
+
+function noSchedules(countsByStaff) {
+  return countsByStaff.every(staffAndCount => staffAndCount[1] === 0);
+}
+
+function retrieveSchedules() {
+  const urlBase = 'http://localhost:3000/api'; 
+  let staffWithCount = [];
+  let expectedScheduleCount;
+
+  let allStaffRequest = new XMLHttpRequest();
+  allStaffRequest.open('GET', urlBase + '/staff_members');
+  allStaffRequest.responseType = 'json';
+
+  allStaffRequest.addEventListener('load', () => {
+    expectedScheduleCount = allStaffRequest.response.length;
+
+    allStaffRequest.response.forEach(staffObject => {
+      let singleStaffRequest = new XMLHttpRequest();
+      singleStaffRequest.open('GET', urlBase + '/schedules/' + staffObject.id);
+      singleStaffRequest.responseType = 'json';
+      setAndHandleTimeout(singleStaffRequest);
+
+      singleStaffRequest.addEventListener('loadend', event => {
+        if (event.currentTarget.response) {
+          staffWithCount.push([staffObject.id, singleStaffRequest.response.length]);
+        } else {
+          // Request timed out, now we're expecting 1 fewer schedules
+          expectedScheduleCount -= 1;
+        }
+
+        if (staffWithCount.length === expectedScheduleCount) {
+          if (noSchedules(staffWithCount)) {
+            alert('No schedules available for booking');
+          } else {
+            alert(staffWithCount.map(el => `Staff ${el[0]} : ${el[1]}`).join("\n"));
+          }
+          alert('Finished!');
+        }
+      });
+
+      singleStaffRequest.send();
+
+      function setAndHandleTimeout(request) {
+        request.timeout = 5000;
+
+        request.addEventListener('timeout', () => {
+          expectedScheduleCount -= 1;
+          alert('It is taking longer than usual, please try again later.');
+        });
+      }
+    });
+  });
+
+
+  allStaffRequest.send();
+}
+
+retrieveSchedules();
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

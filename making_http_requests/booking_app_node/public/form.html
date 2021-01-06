@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Adding Staff Form</title>
+    <meta charset="utf-8"/>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let endpoint = 'http://localhost:3000/api/staff_members';
+      let form = document.querySelector('form');
+      let emailInput = document.getElementById('email');
+      let nameInput = document.getElementById('name');
+
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+
+        if (nameInput.value.trim().length === 0 ||
+            emailInput.value.trim().length === 0) {
+          alert('Both fields must be filled in'); 
+          return;
+        } else if (!isValidEmail(emailInput.value)) {
+          alert('Invalid email address');
+          return;
+        }
+
+        let data = new FormData(form);
+        let request = new XMLHttpRequest();
+
+        request.open('POST', endpoint);
+        request.responseType = 'json';
+
+        request.addEventListener('load', () => {
+          if (request.status === 201) {
+            alert(`Staff ID: ${request.response.id} added!`);
+          } else {
+            alert(`Error: ${request.status}\nSomething went wrong! Please try again.`);
+          }
+        });
+
+        request.send(data);
+      });
+    });
+
+    function isValidEmail(text) {
+      return /\w+@\w+\.\w+/.test(text);
+    }
+  </script>
+  </head>
+  <body>
+    <form action="" method="POST" id="form">
+      <label for="name">Staff Name: </label>
+      <input type="text" name="name" id="name"/>
+      <label for="email">Staff Email: </label>
+      <input type="text" name="email" id="email"/>
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Cancellations</title>
+    <meta charset="utf-8"/>
+    <script>
+      function cancelFunctionGenerator(route, method) {
+        return function(id, element){
+          fetch(method, route + id, cancelRequest => {
+            if (cancelRequest.status === 204) {
+              alert('Removed!');
+              element.remove();
+            } else {
+              alert('A booking exists for that schedule. It must be removed first.');
+            }
+          });
+        };
+      }
+
+      const cancelSchedule = cancelFunctionGenerator('http://localhost:3000/api/schedules/', 'DELETE');
+      const cancelBooking = cancelFunctionGenerator('http://localhost:3000/api/bookings/', 'PUT');
+
+      function fetch(method, endpoint, callback, optionalData) {
+        let request = new XMLHttpRequest();
+        request.open(method, endpoint);
+        request.responseType = 'json';
+
+        request.addEventListener('load', () => {
+          callback(request);
+        });
+        
+        request.send(optionalData);
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        let bookingDiv = document.querySelector('.bookings');
+        let scheduleDiv = document.querySelector('.schedules');
+        let staffList = {};
+
+        fetch('GET', 'http://localhost:3000/api/schedules', scheduleRequest => {
+          fetch('GET', 'http://localhost:3000/api/staff_members', staffArrayRequest => {
+            staffArrayRequest.response.forEach(staffMember => {
+              staffList[staffMember.id] = staffMember.name;
+            });
+
+            scheduleRequest.response.forEach(schedule => {
+              let scheduleElement = generateScheduleElement(schedule);
+              scheduleDiv.appendChild(scheduleElement);
+              if (schedule.student_email) {
+                let bookingElement = generateBookingElement(schedule);
+                bookingDiv.appendChild(bookingElement);
+              }
+            });
+          });
+        });
+
+        bookingDiv.addEventListener('click', event => {
+          if (event.target.tagName === 'LI') {
+            let bookingId = event.target.id;
+            cancelBooking(bookingId, event.target);
+          }
+        });
+
+        scheduleDiv.addEventListener('click', event => {
+          if (event.target.tagName === 'LI') {
+            let scheduleId = event.target.id;
+            cancelSchedule(scheduleId, event.target);
+          }
+        });
+
+        function generateScheduleElement(scheduleData) {
+          let scheduleElement = document.createElement('li');
+          scheduleElement.id = scheduleData.id;
+
+          scheduleElement.innerText = [
+            staffList[scheduleData.staff_id],
+            scheduleData.date,
+            scheduleData.time,
+          ].join(' | ');
+
+          return scheduleElement;
+        }
+
+        function generateBookingElement(scheduleData) {
+          let bookingElement = document.createElement('li');
+          bookingElement.id = scheduleData.id;
+
+          bookingElement.innerText = [
+            staffList[scheduleData.staff_id],
+            scheduleData.date,
+            scheduleData.time,
+            scheduleData.student_email
+          ].join(' | ');
+
+          return bookingElement;
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <h3>Click A Booking To Cancel It</h3> 
+    <ul class="bookings">
+    </ul>
+    <h3>Click A Schedule To Cancel It</h3> 
+    <ul class="schedules">
+    </ul>
+  </body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Booking Time Slots</title>
+    <meta charset="utf-8"/>
+  <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+      let scheduleSelect = document.getElementById('schedule_list');
+      let form = document.querySelector('form');
+
+      let staffListRequest = new XMLHttpRequest();
+      staffListRequest.open('GET', 'http://localhost:3000/api/staff_members');
+      staffListRequest.responseType = 'json';
+      staffListRequest.addEventListener('load', () => {
+        let staffList = createStaffList(staffListRequest.response);
+
+        let schedulesRequest = new XMLHttpRequest();
+        schedulesRequest.open('GET', 'http://localhost:3000/api/schedules');
+        schedulesRequest.responseType = 'json';
+        
+        schedulesRequest.addEventListener('load', () => {
+          schedulesRequest.response.forEach(schedule => {
+            if (!schedule.student_email) {
+              let newOption = document.createElement('option');
+              let staffName = staffList[schedule.staff_id];
+              let time = schedule.time;
+              let date = schedule.date;
+              newOption.value = schedule.id;
+              newOption.innerText = [staffName, time, date].join(' | ');
+
+              scheduleSelect.appendChild(newOption);
+            }
+          });
+        });
+
+        schedulesRequest.send();
+      });
+
+      staffListRequest.send();
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+
+        if (validEmail(document.querySelector('.student_email').value) &&
+            form.querySelector('select').selectedOptions.length) {
+          let data = formDatatoJSON(form);
+          let bookingSubmitRequest = new XMLHttpRequest();
+          bookingSubmitRequest.open('POST', "http://localhost:3000/api/bookings");
+          bookingSubmitRequest.setRequestHeader('Content-Type', "application/json");
+          bookingSubmitRequest.addEventListener('load', () => {
+            if (bookingSubmitRequest.status !== 204) {
+              alert (bookingSubmitRequest.response);
+
+              let bookingSequence = bookingSubmitRequest.response.split(": ")[1];
+
+              let newForm = document.createElement('form');
+
+              let emailLabel = document.createElement('label');
+              emailLabel.innerText = "Email:";
+
+              let emailInput = document.createElement('input');
+              emailInput.classList.add('student_email');
+              emailInput.type = 'text';
+              emailInput.value = data.student_email;
+              emailLabel.appendChild(emailInput);
+
+              let nameLabel = document.createElement('label');
+              nameLabel.innerText = "Name:";
+
+              let nameInput = document.createElement('input');
+              nameInput.classList.add('student_name');
+              nameInput.type = 'text';
+              nameLabel.appendChild(nameInput);
+
+              let bookingSequenceLabel = document.createElement('label');
+              bookingSequenceLabel.innerText = "Booking Sequence:";
+
+              let bookingSequenceInput = document.createElement('input');
+              bookingSequenceInput.classList.add('booking_sequence');
+              bookingSequenceInput.type = "text";
+              bookingSequenceInput.value = bookingSequence;
+              bookingSequenceLabel.appendChild(bookingSequenceInput);
+
+              let submitButton = document.createElement('button');
+              submitButton.innerText = 'Submit';
+              submitButton.type = 'submit';
+      
+              newForm.append(emailLabel, nameLabel, bookingSequenceLabel, submitButton);
+              form.insertAdjacentElement('afterend', newForm);
+              newForm.addEventListener('submit', event => {
+                event.preventDefault(); 
+
+                let email = newForm.querySelector('.student_email').value;
+                let name = newForm.querySelector('.student_name').value;
+                let booking_sequence = Number(newForm.querySelector('.booking_sequence').value); 
+                let data = { email , name, booking_sequence }; 
+
+                let newStudentRequest = new XMLHttpRequest();
+                newStudentRequest.open('POST', 'http://localhost:3000/api/students');
+                newStudentRequest.setRequestHeader('Content-Type', 'application/json');
+                newStudentRequest.addEventListener('load', () => {
+                  if (newStudentRequest.status === 201) {
+                    form.dispatchEvent(new Event('submit'));
+                    alert('Booked');
+                  } else {
+                    alert(newStudentRequest.responseText);
+                  }
+                })
+
+                newStudentRequest.send(JSON.stringify(data));
+              });
+            }
+          });
+
+          bookingSubmitRequest.send(JSON.stringify(data));
+        } else {
+          alert('Please enter a valid email and select a schedule');
+        }
+      });
+    });
+
+    function formDatatoJSON(form) {
+      let scheduleId = form.querySelector('#schedule_list').value;
+      let studentEmail = form.querySelector('.student_email').value;
+      return { id: Number(scheduleId), student_email: studentEmail };
+    }
+
+    function validEmail(email) {
+      return /^\w+@\w+\.\w+$/.test(email);
+    }
+
+    function createStaffList(response) {
+      let staffList = {};
+      response.forEach(staffData => {
+        staffList[staffData.id] = staffData.name; 
+      });
+
+      return staffList;
+    }
+  </script>
+  </head>
+  <body>
+    <h1>Schedules</h1> 
+    <form action="" method="POST">
+      <label>Please select one schedule
+        <select id="schedule_list"></select>
+      </label>
+      <br>
+      <label>Email:
+        <input type="text" class="student_email" />
+      </label>
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

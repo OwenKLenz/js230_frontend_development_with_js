@@ -1,0 +1,40 @@
+body * {
+	position: absolute;
+	display: block;
+	height: 50px;
+	width: 50px;
+	font-size: 14px;
+	font-weight: normal;
+	text-decoration: none;
+	color: black;
+	box-shadow: inset 0px 0px 8px -1px rgba(0,0,0,0.30);
+}
+
+article {
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+.child1x1, .child1x2, .child1x6, article {
+	box-sizing: border-box;
+	padding: 5px 0 0 5px;
+}
+
+.child1x1 {
+	left: 50px;
+	top: 0px;
+}
+
+.child1x2 {
+	left: 50px;
+	top: 50px;
+}
+
+.child1x6 {
+	left: 50px;
+	top: 250px;
+}
+
+.generation-color {
+	background: #E0EAF1;
+}

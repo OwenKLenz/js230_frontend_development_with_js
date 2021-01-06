@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Child Nodes</title>
+    <meta charset="utf-8"/>
+  </head>
+  <body>
+    <div id="1">
+      <h1 id="2">Hello, <em id="3">World</em></h1>
+      <p id="4">
+        Welcome to wonderland. This is an
+        <span id="5">awesome</span> place.
+      </p>
+      <a href="#" id="6"><strong id="7">Enter</strong></a></strong></a>
+      <div id="8"><p id="9"><a href="#" id="10">Go back</a></p></div>
+    </div>
+
+  <script>
+    function walk(node, callback) {
+      [...node.childNodes].forEach(childNode => {
+        callback(childNode);
+        walk(childNode, callback);
+      });
+    }
+
+    let elementChildCounts = [];
+
+    for (let i = 1; i <= 10; i++) {
+      let count = 0;
+      currentNode = document.getElementById(String(i));
+      let directCount = currentNode.childNodes.length; 
+
+      walk(currentNode, function (node) {
+        count += 1; 
+      });
+
+      currentElementCounts = {id: i};
+      currentElementCounts['direct'] = directCount;
+      currentElementCounts['indirect'] = count - directCount;
+
+      elementChildCounts.push(currentElementCounts);
+    }
+
+    // Further Exploration
+    function childNodes(number) {
+      let node = elementChildCounts[number - 1];
+      return [node.direct, node.indirect];
+    }
+
+    // sample output
+    console.log(childNodes(1));
+    // = [9, 12]
+    console.log(childNodes(4));
+    // = [3, 1]
+    console.log(childNodes(9));
+    // = [1, 1] 
+    </script>
+
+  </body>
+

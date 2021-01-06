@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Car Shop</title>
+    <meta charset="utf-8"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.6/handlebars.min.js" integrity="sha512-zT3zHcFYbQwjHdKjCu6OMmETx8fJA9S7E6W7kBeFxultf75OPTYUJigEKX58qgyQMi1m1EgenfjMXlRZG8BXaw==" crossorigin="anonymous"></script>
+    <script src="./javascripts/car_shop.js"></script>
+    <link rel="stylesheet" href="./stylesheets/car_shop.css" />
+    <script type="x-handlebars-template" id="carTemplate">
+      <div class="car">
+          <img src="{{image}}" alt="{{make}} {{model}}" />
+          <span>{{make}}</span>
+          <span>{{model}}</span>
+          <p>${{price}}</p>
+          <p>{{year}}</p>
+          <button class="buy">Buy Now!</button>
+        </div>
+    </script>
+    <script type="x-handlebars-template" id="selectorsTemplate">
+      <form action="#" method="post">
+        {{#each selectors}}
+          <select required name="{{@key}}" id="{{@key}}">
+            <option selected selected disabled>Select a {{@key}}</option>
+            <option>All</option>
+            {{#each this}}
+              <option>{{this}}</option>
+            {{/each}}
+          </select>
+        {{/each}}
+        <button id="filter">Filter</button>
+      </form>
+    </script>
+
+  </head>
+  <body>
+    <main>
+      <h1>Buy a Car!</h1>
+      <div id="selectorContainer">
+
+      </div>
+      <button id="reset">Reset</button>
+
+      <div id="carContainer">
+
+      </div>
+    </main>
+  </body>
+</html>

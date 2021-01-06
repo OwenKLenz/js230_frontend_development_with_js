@@ -1,0 +1,49 @@
+body {
+  text-align: center;
+}
+
+main {
+  display: inline-block;
+  background: silver;
+  padding: 40px;
+  border: 10px solid grey;
+  border-radius: 40px;
+}
+
+#stopwatch {
+  display: inline-block;
+  border: 10px outset #33f;
+  background: blue;
+  margin: 0 0 10px 0;
+  padding: 10px;
+  font-size: 22px;
+}
+
+.counter {
+  display: inline-block;
+  border: 2px solid black;
+  background: grey;
+  padding: 6px;
+  border-radius: 5px;
+  width: 30px;
+}
+
+button {
+  font-size: 22px;
+  background: #f22;
+  border: 8px outset #f22;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+  width: 100px;
+}
+
+button:focus {
+  outline: none;
+}
+
+button:active {
+  background: #f00;
+  border: 8px inset #f00;
+}
+

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>Event Delegation Function</title>
+  <script>
+    function delegateEvent(parentElement, selector, eventType, callback) {
+			if (parentElement) {
+				parentElement.addEventListener(eventType, event => {
+          let elements = parentElement.querySelectorAll(selector);
+					if (event.target !== event.currentTarget && [...elements].includes(event.target)) {
+            event.stopPropagation();
+						callback(event);
+					}
+				});
+
+        return true;
+			}
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Possible elements for use with the scenarios
+			const element1 = document.querySelector('table');
+			const element2 = document.querySelector('main h1');
+			const element3 = document.querySelector('main');
+			// Possible callback for use with the scenarios
+      const callback = ({target, currentTarget}) => {
+        alert(`Target: ${target.tagName}\nCurrent Target: ${currentTarget.tagName}`);
+      };
+
+      const newP = document.createElement('P');
+      const newContent = document.createTextNode('New Paragraph');
+      newP.appendChild(newContent);
+
+      element2.appendChild(newP);
+
+			// console.log(delegateEvent(element1, 'p', 'click', callback));
+			// console.log(delegateEvent(element2, 'p', 'click', callback));
+      // console.log(delegateEvent(element2, 'h1', 'click', callback));
+      // console.log(delegateEvent(element3, 'h1', 'click', callback));
+      // console.log(delegateEvent(element3, 'aside p', 'click', callback));
+      console.log(delegateEvent(element2, 'p', 'click', callback));
+    });
+  </script>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>Header</h1>
+        <p>Content</p>
+      </section>
+      <aside>
+        <h2>Sub Side Notes</h2>
+        <p>Note 1</p>
+        <p>Note 2</p>
+      </aside>
+    </main>
+    <nav>
+      <p>side Note</p>
+    </nav>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Nodes to Array</title>
+  </head>
+  <body>
+    <header id="1"></header>
+    <main id="2"><p></p></main>
+    <footer id="3"></footer>
+  </body>
+  <script>
+    function nodesToArr(startNode = document.body) {
+      return [startNode.tagName, [...startNode.children].map(nodesToArr)];
+		}
+
+    console.log(nodesToArr());
+  </script>
+</html>
